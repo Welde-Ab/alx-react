@@ -1,66 +1,52 @@
-const path = require("path");
-const HTMLWebpackPlugin = require('html-webpack-plugin');
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
-  plugins: [
-		new HTMLWebpackPlugin({
-			filename: './index.html',
-		}),
-		new CleanWebpackPlugin(),
-	],
-	devtool: 'inline-source-map',
-	mode: 'development',
-	entry: {
-		header: {
-			import: './modules/header/header.js',
-			dependOn: 'shared',
-		},
-		body: {
-			import: './modules/body/body.js',
-			dependOn: 'shared',
-		},
-		footer: {
-			import: './modules/footer/footer.js',
-			dependOn: 'shared',
-		},
-		shared: 'jquery',
-	},
-  output: {
-    path: path.resolve(__dirname, 'public'),
-    filename: '[name].bundle.js',
-  },
-  optimization: {
-		splitChunks: {
-			chunks: 'all',
-		},
-	},
-  devServer: {
-    static: path.join(__dirname, './public'),
-    open: true,
-    port: 8564,
+  mode: 'development',
+  entry: {
+    all: ["./modules/header/header.js", "./modules/body/body.js", "./modules/footer/footer.js"],
   },
   performance: {
-		maxAssetSize: 1000000,
-	},
+    maxAssetSize: 1000000,
+    maxEntrypointSize: 1000000,
+  },
+  output: {
+    filename: "[name].bundle.js",
+    path: path.resolve(__dirname, "public")
+  },
+  devtool: 'inline-source-map',
+  devServer: {
+    contentBase: path.join(__dirname, './public'),
+    compress: true,
+    port: 8564,
+  },
+  plugins: [
+    new CleanWebpackPlugin(),
+    new HtmlWebpackPlugin(),
+  ],
   module: {
     rules: [
       {
-        test: /\.css$/,
-        use: ["style-loader", "css-loader"],
+        test: /\.css$/i,
+        use: [
+          'style-loader',
+          'css-loader'
+        ]
       },
       {
-				test: /\.(?:ico|gif|png|jpg|jpeg)$/i,
-				use: [
-					{
-						loader: ['file-loader', 'image-webpack-loader'],
-						options: {
-							bypassOnDebug: true,
-							disable: true,
-						},
-					},
-				],
-			},
+        test: /\.(png|jpe?g|gif)$/i,
+        use: [
+          'file-loader',
+          {
+            loader: 'image-webpack-loader',
+            options: {
+              bypassOnDebug: true,
+              disable: true,
+            },
+          },
+        ],
+      },
     ]
-  }
+  },
 };
